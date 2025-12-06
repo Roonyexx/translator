@@ -1,16 +1,24 @@
 #include <iostream>
 #include "Scanner.hpp"
+#include "Parser.hpp"
 
 int main()
 {
-    Scanner* scanner = new Scanner("C:\\vs code\\c++\\trans\\test.cpp");
-
-    std::string token{};
-    uint16_t tokenCode{};
-
-    do
+    try
     {
-        tokenCode = scanner->scan(token);
-        std::cout << "Token: " << token << "\t[code: " << tokenCode << "]" << std::endl;
-    } while (tokenCode != TEnd && tokenCode != Terr);
+        Scanner* scanner = new Scanner("C:\\vs code\\c++\\trans\\test.cpp");
+        Parser* parser = new Parser(scanner);
+        
+        parser->parse();
+        
+        delete parser;
+        delete scanner;
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Ошибка: " << e.what() << std::endl;
+        return 1;
+    }
+    
+    return 0;
 }
