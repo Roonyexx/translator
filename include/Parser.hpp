@@ -2,24 +2,32 @@
 
 #include <string>
 #include "Scanner.hpp"
+#include "Tree.hpp"
 
 class Parser
 {
 public:
     Parser(Scanner* scanner);
     ~Parser();
-    
+
     void parse();
-    
+
 private:
-    Scanner* scanner;
+    Scanner*  scanner;
     std::string currentToken;
-    uint16_t currentTokenCode;
-    
+    uint16_t    currentTokenCode;
+
+    PrimitiveDataType lastType;    
+    std::string       lastTypeName;
+    PrimitiveDataType exprType;
+
     void nextToken();
     void expect(uint16_t tokenCode, const std::string& message);
+    std::string expectId(const std::string& message);
     void error(const std::string& message);
-    
+
+    bool compatibleAssign(PrimitiveDataType l, PrimitiveDataType r);
+
     void Program();
     void GlobalDescriptions();
     void Description();
