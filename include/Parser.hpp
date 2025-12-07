@@ -1,11 +1,12 @@
 #pragma once
 
 #include <string>
+#include <cstdint>
+
 #include "Scanner.hpp"
 #include "Tree.hpp"
 
-class Parser
-{
+class Parser {
 public:
     Parser(Scanner* scanner);
     ~Parser();
@@ -13,13 +14,16 @@ public:
     void parse();
 
 private:
-    Scanner*  scanner;
-    std::string currentToken;
-    uint16_t    currentTokenCode;
+    Scanner*          scanner;
+    std::string       currentToken;
+    uint16_t          currentTokenCode;
 
-    PrimitiveDataType lastType;    
-    std::string       lastTypeName;
-    PrimitiveDataType exprType;
+    PrimitiveDataType lastType;     
+    std::string       lastTypeName; 
+    PrimitiveDataType exprType;    
+
+
+    TData             exprValue;
 
     void nextToken();
     void expect(uint16_t tokenCode, const std::string& message);
@@ -28,6 +32,12 @@ private:
 
     bool compatibleAssign(PrimitiveDataType l, PrimitiveDataType r);
 
+    void resetExpr();                          
+    void printAssignment(const Node* dest);  
+    void assignValue(Node* dest, PrimitiveDataType destType,
+                     const TData& srcValue);      // присваивание с приведением типов
+
+    // Синтаксические подпрограммы
     void Program();
     void GlobalDescriptions();
     void Description();

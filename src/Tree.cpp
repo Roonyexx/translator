@@ -1,4 +1,5 @@
 #include "Tree.hpp"
+#include <iostream>
 
 Tree* Tree::root    = nullptr;
 Tree* Tree::current = nullptr;
@@ -29,7 +30,6 @@ Tree* Tree::getCurrent()
 
 Tree* Tree::SetRight(const Node& data)
 {
-    // Добавление символа в текущую область (current)
     if (!root)
     {
         Tree* n = new Tree(new Node(data), nullptr);
@@ -41,7 +41,6 @@ Tree* Tree::SetRight(const Node& data)
     if (!current)
         current = root;
 
-    // добавляем как ребёнка current
     if (!current->firstChild)
     {
         Tree* child   = new Tree(new Node(data), current);
@@ -61,7 +60,6 @@ Tree* Tree::SetRight(const Node& data)
 
 Tree* Tree::SetLeft(const Node& data)
 {
-    // Добавление узла-области и переход в неё
     Tree* n = SetRight(data);
     current = n;
     return n;
@@ -109,7 +107,6 @@ Tree* Tree::FindDownLeft(const std::string& id)
     return nullptr;
 }
 
-// рекурсивный поиск класса по всему дереву
 static Tree* findClassRecursive(Tree* node, const std::string& id)
 {
     if (!node) return nullptr;
@@ -131,15 +128,16 @@ Tree* Tree::FindGlobal(const std::string& id)
     return findClassRecursive(root, id);
 }
 
-void Tree::printRec(Tree* t, int indent) {
+void Tree::printRec(Tree* t, int indent)
+{
     if (!t) return;
+
     std::string pad(indent, ' ');
 
-    // если это узел-секция [Scope] и у него нет "собственного" имени -> печатаем только детей
     if (t->node && t->node->id == "[Scope]") {
         Tree* it = t->firstChild;
         while (it) {
-            printRec(it, indent);    // не увеличиваем отступ для тесной вложенности,
+            printRec(it, indent);
             it = it->nextSibling;
         }
         return;
@@ -147,14 +145,37 @@ void Tree::printRec(Tree* t, int indent) {
 
     if (t->node) {
         std::cout << pad << t->node->id << " ";
+
         if (t->node->datType != UndefinedType)
             std::cout << "(" << TypeName(t->node->datType) << ")";
         else if (!t->node->typeName.empty())
             std::cout << "(" << t->node->typeName << ")";
         else
             std::cout << "(undefined)";
-        if (t->node->objType != ObjEmpty) std::cout << " [" << ObjName(t->node->objType) << "]";
-        if (t->node->isInitialized) std::cout << " {inited}";
+
+        if (t->node->objType != ObjEmpty)
+            std::cout << " [" << ObjName(t->node->objType) << "]";
+
+        if (t->node->isInitialized)
+            std::cout << " {inited}";
+
+        if ((t->node->objType == ObjVar || t->node->objType == ObjConst) &&
+            t->node->data.dataType != TYPE_UNKNOWN)
+        {
+            std::cout << " = ";
+            switch (t->node->data.dataType) {
+                case TYPE_INT:
+                    std::cout << t->node->data.dataValue.dataAsInt;
+                    break;
+                case TYPE_DOUBLE:
+                    std::cout << t->node->data.dataValue.dataAsDouble;
+                    break;
+                default:
+                    std::cout << "<undef>";
+                    break;
+            }
+        }
+
         std::cout << std::endl;
     }
 
@@ -166,6 +187,7 @@ void Tree::printRec(Tree* t, int indent) {
         }
     }
 }
+
 
 void Tree::PrintTree(Tree* from)
 {
@@ -217,8 +239,6 @@ void Tree::semOut()
     if (current->parent)
         current = current->parent;
 }
-
-// ===== семантические функции =====
 
 bool checkId(const std::string& id)
 {

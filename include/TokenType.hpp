@@ -1,7 +1,6 @@
 #pragma once
 
 enum TokenType : int {
-	// идентификаторы и ключевые слова
 	TId = 1,
 	TInt = 2,
 	TDouble = 3,
