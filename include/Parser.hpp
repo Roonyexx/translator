@@ -1,11 +1,12 @@
 #pragma once
 
 #include <string>
-#include <cstdint>
+//#include <stdint>
 
 #include "Scanner.hpp"
 #include "Tree.hpp"
 
+// Синтаксический анализатор + однопроходная интерпретация выражений
 class Parser {
 public:
     Parser(Scanner* scanner);
@@ -14,25 +15,34 @@ public:
     void parse();
 
 private:
-    Scanner* scanner;
-    std::string currentToken;
-    uint16_t currentTokenCode;
-    PrimitiveDataType lastType;
-    std::string lastTypeName;
-    PrimitiveDataType exprType;
-    TData exprValue;
+    Scanner*          scanner;
+    std::string       currentToken;
+    uint16_t          currentTokenCode;
+
+    PrimitiveDataType lastType;     
+    std::string       lastTypeName; 
+    PrimitiveDataType exprType;    
+    TData             exprValue;  
+
 
     void nextToken();
     void expect(uint16_t tokenCode, const std::string& message);
     std::string expectId(const std::string& message);
     void error(const std::string& message);
-    bool compatibleAssign(PrimitiveDataType l, PrimitiveDataType r);
-    void resetExpr();
 
-    void printAssignment(const Node* dest,
-                         const std::string& fullName = std::string());
-    void assignValue(Node* dest, PrimitiveDataType destType,
-                     const TData& srcValue);
+
+    bool compatibleAssign(PrimitiveDataType l, PrimitiveDataType r);
+
+
+    void resetExpr();
+    void printAssignment(const Node* dest, const std::string& fullName = std::string());
+    void assignValue(Node* dest, PrimitiveDataType destType, const TData& srcValue);
+
+    void debugValue(const char* label, const TData& v, PrimitiveDataType t);
+    TData evalBinary(uint16_t op,
+                     const TData& l, PrimitiveDataType lt,
+                     const TData& r, PrimitiveDataType rt,
+                     PrimitiveDataType& resultType);
 
     Tree* parseDesignator(bool allowMethodCall,
                           bool& isMethodCall,
