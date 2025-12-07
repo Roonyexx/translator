@@ -9,7 +9,8 @@ enum TypeObject {
     ObjConst,
     ObjClass,
     ObjMethod,
-    ObjFunc
+    ObjFunc,
+    ObjField
 };
 
 enum PrimitiveDataType {
@@ -25,27 +26,26 @@ enum DataType {
 };
 
 union DataValue {
-    int    dataAsInt;
+    int dataAsInt;
     double dataAsDouble;
 
     DataValue() : dataAsInt(0) {}
 };
 
 struct TData {
-    DataType  dataType;
+    DataType dataType;
     DataValue dataValue;
 
     TData() : dataType(TYPE_UNKNOWN), dataValue() {}
 };
 
 struct Node {
-    std::string       id;
-    TypeObject        objType;
+    std::string id;
+    TypeObject objType;
     PrimitiveDataType datType;
-    bool              isInitialized;
-    std::string       typeName;
-
-    TData             data;
+    bool isInitialized;
+    std::string typeName;
+    TData data;
 
     Node()
         : id(),
@@ -56,29 +56,28 @@ struct Node {
           data() {}
 
     Node(const std::string& i,
-         TypeObject         o  = ObjEmpty,
-         PrimitiveDataType  d  = UndefinedType,
-         bool               init = false,
+         TypeObject o = ObjEmpty,
+         PrimitiveDataType d = UndefinedType,
+         bool init = false,
          const std::string& tn = std::string())
         : id(i),
           objType(o),
           datType(d),
           isInitialized(init),
           typeName(tn),
-          data()
-    {
+          data() {
         switch (datType) {
-            case IntType:
-                data.dataType = TYPE_INT;
-                data.dataValue.dataAsInt = 0;
-                break;
-            case DoubleType:
-                data.dataType = TYPE_DOUBLE;
-                data.dataValue.dataAsDouble = 0.0;
-                break;
-            default:
-                data.dataType = TYPE_UNKNOWN;
-                break;
+        case IntType:
+            data.dataType = TYPE_INT;
+            data.dataValue.dataAsInt = 0;
+            break;
+        case DoubleType:
+            data.dataType = TYPE_DOUBLE;
+            data.dataValue.dataAsDouble = 0.0;
+            break;
+        default:
+            data.dataType = TYPE_UNKNOWN;
+            break;
         }
     }
 };
@@ -97,25 +96,27 @@ public:
     Tree* FindUp(const std::string& id);
     Tree* FindUpOneLevel(const std::string& id);
     Tree* FindDownLeft(const std::string& id);
+
     static Tree* FindGlobal(const std::string& id);
 
     static void PrintTree(Tree* from = nullptr);
+
     static void semIn();
     static void semOut();
 
     static std::string TypeName(PrimitiveDataType t);
     static std::string ObjName(TypeObject o);
 
-    Node* getNode()       { return node.get(); }
-    Tree* getParent()     { return parent; }
-    Tree* getLeft()       { return firstChild; }
-    Tree* getRight()      { return nextSibling; }
+    Node* getNode() { return node.get(); }
+    Tree* getParent() { return parent; }
+    Tree* getLeft() { return firstChild; }
+    Tree* getRight() { return nextSibling; }
 
 private:
     std::unique_ptr<Node> node;
-    Tree*                 parent;
-    Tree*                 firstChild;
-    Tree*                 nextSibling;
+    Tree* parent;
+    Tree* firstChild;
+    Tree* nextSibling;
 
     static Tree* root;
     static Tree* current;

@@ -14,30 +14,30 @@ public:
     void parse();
 
 private:
-    Scanner*          scanner;
-    std::string       currentToken;
-    uint16_t          currentTokenCode;
-
-    PrimitiveDataType lastType;     
-    std::string       lastTypeName; 
-    PrimitiveDataType exprType;    
-
-
-    TData             exprValue;
+    Scanner* scanner;
+    std::string currentToken;
+    uint16_t currentTokenCode;
+    PrimitiveDataType lastType;
+    std::string lastTypeName;
+    PrimitiveDataType exprType;
+    TData exprValue;
 
     void nextToken();
     void expect(uint16_t tokenCode, const std::string& message);
     std::string expectId(const std::string& message);
     void error(const std::string& message);
-
     bool compatibleAssign(PrimitiveDataType l, PrimitiveDataType r);
+    void resetExpr();
 
-    void resetExpr();                          
-    void printAssignment(const Node* dest);  
+    void printAssignment(const Node* dest,
+                         const std::string& fullName = std::string());
     void assignValue(Node* dest, PrimitiveDataType destType,
-                     const TData& srcValue);      // присваивание с приведением типов
+                     const TData& srcValue);
 
-    // Синтаксические подпрограммы
+    Tree* parseDesignator(bool allowMethodCall,
+                          bool& isMethodCall,
+                          std::string& fullName);
+
     void Program();
     void GlobalDescriptions();
     void Description();
