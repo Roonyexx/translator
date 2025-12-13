@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -28,14 +29,12 @@ enum DataType {
 union DataValue {
     int dataAsInt;
     double dataAsDouble;
-
     DataValue() : dataAsInt(0) {}
 };
 
 struct TData {
     DataType dataType;
     DataValue dataValue;
-
     TData() : dataType(TYPE_UNKNOWN), dataValue() {}
 };
 
@@ -43,8 +42,10 @@ struct Node {
     std::string id;
     TypeObject objType;
     PrimitiveDataType datType;
+
     bool isInitialized;
     std::string typeName;
+
     TData data;
 
     Node()
@@ -67,17 +68,17 @@ struct Node {
           typeName(tn),
           data() {
         switch (datType) {
-        case IntType:
-            data.dataType = TYPE_INT;
-            data.dataValue.dataAsInt = 0;
-            break;
-        case DoubleType:
-            data.dataType = TYPE_DOUBLE;
-            data.dataValue.dataAsDouble = 0.0;
-            break;
-        default:
-            data.dataType = TYPE_UNKNOWN;
-            break;
+            case IntType:
+                data.dataType = TYPE_INT;
+                data.dataValue.dataAsInt = 0;
+                break;
+            case DoubleType:
+                data.dataType = TYPE_DOUBLE;
+                data.dataValue.dataAsDouble = 0.0;
+                break;
+            default:
+                data.dataType = TYPE_UNKNOWN;
+                break;
         }
     }
 };
@@ -101,6 +102,8 @@ public:
 
     static void PrintTree(Tree* from = nullptr);
 
+    static void Reset();
+
     static void semIn();
     static void semOut();
 
@@ -114,6 +117,7 @@ public:
 
 private:
     std::unique_ptr<Node> node;
+
     Tree* parent;
     Tree* firstChild;
     Tree* nextSibling;
@@ -124,6 +128,7 @@ private:
     static void printRec(Tree* t, int indent);
 };
 
+// семантические проверки
 bool checkId(const std::string& id);
 bool checkDuplicateId(const std::string& id);
 bool checkLValue(Tree* node);

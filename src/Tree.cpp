@@ -1,7 +1,5 @@
 #include "Tree.hpp"
 
-#include <iostream>
-
 Tree* Tree::root = nullptr;
 Tree* Tree::current = nullptr;
 
@@ -9,21 +7,21 @@ Tree::Tree(Node* data, Tree* parent)
     : node(data ? std::unique_ptr<Node>(new Node(*data)) : nullptr),
       parent(parent),
       firstChild(nullptr),
-      nextSibling(nullptr) {
-}
+      nextSibling(nullptr) {}
 
 Tree::~Tree() {
     delete firstChild;
     delete nextSibling;
 }
 
-void Tree::setCurrent(Tree* cur) {
-    current = cur;
+void Tree::Reset() {
+    delete root;
+    root = nullptr;
+    current = nullptr;
 }
 
-Tree* Tree::getCurrent() {
-    return current;
-}
+void Tree::setCurrent(Tree* cur) { current = cur; }
+Tree* Tree::getCurrent() { return current; }
 
 Tree* Tree::SetRight(const Node& data) {
     if (!root) {
@@ -33,21 +31,20 @@ Tree* Tree::SetRight(const Node& data) {
         return n;
     }
 
-    if (!current)
-        current = root;
+    if (!current) current = root;
 
     if (!current->firstChild) {
         Tree* child = new Tree(new Node(data), current);
         current->firstChild = child;
         return child;
-    } else {
-        Tree* it = current->firstChild;
-        while (it->nextSibling)
-            it = it->nextSibling;
-        Tree* child = new Tree(new Node(data), current);
-        it->nextSibling = child;
-        return child;
     }
+
+    Tree* it = current->firstChild;
+    while (it->nextSibling) it = it->nextSibling;
+
+    Tree* child = new Tree(new Node(data), current);
+    it->nextSibling = child;
+    return child;
 }
 
 Tree* Tree::SetLeft(const Node& data) {
@@ -61,8 +58,7 @@ Tree* Tree::FindUp(const std::string& id) {
     while (scope) {
         Tree* child = scope->firstChild;
         while (child) {
-            if (child->node && child->node->id == id)
-                return child;
+            if (child->node && child->node->id == id) return child;
             child = child->nextSibling;
         }
         scope = scope->parent;
@@ -74,8 +70,7 @@ Tree* Tree::FindUpOneLevel(const std::string& id) {
     Tree* scope = this;
     Tree* child = scope->firstChild;
     while (child) {
-        if (child->node && child->node->id == id)
-            return child;
+        if (child->node && child->node->id == id) return child;
         child = child->nextSibling;
     }
     return nullptr;
@@ -84,8 +79,7 @@ Tree* Tree::FindUpOneLevel(const std::string& id) {
 Tree* Tree::FindDownLeft(const std::string& id) {
     Tree* child = firstChild;
     while (child) {
-        if (child->node && child->node->id == id)
-            return child;
+        if (child->node && child->node->id == id) return child;
         child = child->nextSibling;
     }
     return nullptr;
@@ -95,8 +89,8 @@ static Tree* findClassRecursive(Tree* node, const std::string& id) {
     if (!node) return nullptr;
     if (node->getNode() &&
         node->getNode()->id == id &&
-        node->getNode()->objType == ObjClass)
-        return node;
+        node->getNode()->objType == ObjClass) return node;
+
     Tree* res = findClassRecursive(node->getLeft(), id);
     if (res) return res;
     return findClassRecursive(node->getRight(), id);
@@ -109,7 +103,10 @@ Tree* Tree::FindGlobal(const std::string& id) {
 
 void Tree::printRec(Tree* t, int indent) {
     if (!t) return;
+
     std::string pad(indent, ' ');
+
+    // скрываем узлы Scope и печатаем их детей на том же уровне
     if (t->node && t->node->id == "[Scope]") {
         Tree* it = t->firstChild;
         while (it) {
@@ -121,6 +118,7 @@ void Tree::printRec(Tree* t, int indent) {
 
     if (t->node) {
         std::cout << pad << t->node->id << " ";
+
         if (t->node->datType != UndefinedType)
             std::cout << "(" << TypeName(t->node->datType) << ")";
         else if (!t->node->typeName.empty())
@@ -138,18 +136,13 @@ void Tree::printRec(Tree* t, int indent) {
             t->node->data.dataType != TYPE_UNKNOWN) {
             std::cout << " = ";
             switch (t->node->data.dataType) {
-            case TYPE_INT:
-                std::cout << t->node->data.dataValue.dataAsInt;
-                break;
-            case TYPE_DOUBLE:
-                std::cout << t->node->data.dataValue.dataAsDouble;
-                break;
-            default:
-                std::cout << "";
-                break;
+                case TYPE_INT: std::cout << t->node->data.dataValue.dataAsInt; break;
+                case TYPE_DOUBLE: std::cout << t->node->data.dataValue.dataAsDouble; break;
+                default: break;
             }
         }
-        std::cout << std::endl;
+
+        std::cout << "\n";
     }
 
     if (t->firstChild) {
@@ -162,8 +155,8 @@ void Tree::printRec(Tree* t, int indent) {
 }
 
 void Tree::PrintTree(Tree* from) {
-    std::cout << "\n--- Семантическое дерево ---\n";
     (void)from;
+    std::cout << "\n--- Семантическое дерево ---\n";
     if (!root) {
         std::cout << "(пусто)\n---------------------------\n";
         return;
@@ -174,21 +167,21 @@ void Tree::PrintTree(Tree* from) {
 
 std::string Tree::TypeName(PrimitiveDataType t) {
     switch (t) {
-    case IntType: return "int";
-    case DoubleType: return "double";
-    default: return "undefined";
+        case IntType: return "int";
+        case DoubleType: return "double";
+        default: return "undefined";
     }
 }
 
 std::string Tree::ObjName(TypeObject o) {
     switch (o) {
-    case ObjVar:   return "var";
-    case ObjConst: return "const";
-    case ObjClass: return "class";
-    case ObjMethod:return "method";
-    case ObjFunc:  return "func";
-    case ObjField: return "field";
-    default:       return "obj";
+        case ObjVar: return "var";
+        case ObjConst: return "const";
+        case ObjClass: return "class";
+        case ObjMethod: return "method";
+        case ObjFunc: return "func";
+        case ObjField: return "field";
+        default: return "obj";
     }
 }
 
@@ -199,8 +192,7 @@ void Tree::semIn() {
 
 void Tree::semOut() {
     if (!current) return;
-    if (current->parent)
-        current = current->parent;
+    if (current->parent) current = current->parent;
 }
 
 bool checkId(const std::string& id) {
@@ -243,12 +235,14 @@ bool checkAssignTypes(Tree* left, Tree* right) {
     if (!left || !right) return false;
     PrimitiveDataType l = left->getNode()->datType;
     PrimitiveDataType r = right->getNode()->datType;
+
     if (l == UndefinedType || r == UndefinedType) {
         std::cerr << "Семантическая ошибка: неопределённый тип в присваивании\n";
         return false;
     }
     if (l == r) return true;
     if (l == DoubleType && r == IntType) return true;
+
     std::cerr << "Семантическая ошибка: несовместимые типы в присваивании ("
               << Tree::TypeName(l) << " := " << Tree::TypeName(r) << ")\n";
     return false;
@@ -259,8 +253,8 @@ bool checkArithmeticTypes(Tree* op1, Tree* op2) {
     PrimitiveDataType a = op1->getNode()->datType;
     PrimitiveDataType b = op2->getNode()->datType;
     if ((a == IntType || a == DoubleType) &&
-        (b == IntType || b == DoubleType))
-        return true;
+        (b == IntType || b == DoubleType)) return true;
+
     std::cerr << "Семантическая ошибка: арифметическая операция над нечисловыми типами\n";
     return false;
 }
